@@ -1,0 +1,38 @@
+name: 官報自動取得
+on:
+  schedule:
+    # 毎日8:45 JST (23:45 UTC) に実行
+    - cron: '45 23 * * *'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  fetch-kanpo:
+    runs-on: ubuntu-latest
+    steps:
+    - name: リポジトリをチェックアウト
+      uses: actions/checkout@v4
+      
+    - name: Pythonセットアップ
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: 依存関係インストール
+      run: |
+        pip install requests beautifulsoup4 python-dateutil
+        
+    - name: 官報スクレイピング実行
+      run: python scripts/fetch_kanpo.py
+      
+    - name: 変更をコミット
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        if git diff --staged --quiet; then
+          echo "新しい官報はありません"
+        else
+          git commit -m "官報更新: $(date '+%Y-%m-%d')"
+          git push
+        fi
+        
