@@ -1,4 +1,4 @@
-name: 官報自動取得
+name: 毎日官報発行チェッカー
 
 on:
   schedule:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: スクレイピング前のテスト
+    name: 発行チェックテスト
     runs-on: ubuntu-latest
     outputs:
       test-result: ${{ steps.test.outcome }}
