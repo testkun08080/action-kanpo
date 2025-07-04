@@ -1,7 +1,7 @@
 [project]
-name = "action-kanpo"
+name = "fetch-kanpo-action"
 version = "0.1.0"
-description = "Add your description here"
+description = "Fetch kanpo page via GitHub Action"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

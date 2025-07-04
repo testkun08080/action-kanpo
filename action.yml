@@ -1,0 +1,23 @@
+name: "fetch-kanpo-action"
+description: "官報の更新がないかをチェックする GitHub Actionです"
+author: "testkun08080"
+
+branding:
+  icon: "cpu"
+  color: "blue"
+inputs:
+  serch_date:
+    description: '検索する官報の日付。YYYY-MM-DD形式で指定します。省略すると今日の日付が使用されます。'
+    required: false
+    default: 'default value goes here'
+outputs:
+  kanpou_found:
+    description: '官報が見つかったかどうか'
+  pdf_infos:
+    description: 'PDFの情報リスト'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.kanpou_found }}
+    - ${{ inputs.pdf_infos }}
