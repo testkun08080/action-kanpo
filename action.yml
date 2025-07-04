@@ -5,19 +5,27 @@ author: "testkun08080"
 branding:
   icon: "cpu"
   color: "blue"
+
 inputs:
-  serch_date:
-    description: '検索する官報の日付。YYYY-MM-DD形式で指定します。省略すると今日の日付が使用されます。'
+  dlpdf:
+    description: "PDFをダウンロードするか"
     required: false
-    default: 'default value goes here'
+    default: "false"
+  date:
+    description: "対象日付 (例: 2025-07-03), 指定しない場合は当日の日付を使用"
+    required: false
+
 outputs:
   kanpou_found:
     description: '官報が見つかったかどうか'
   pdf_infos:
     description: 'PDFの情報リスト'
+
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
   args:
-    - ${{ inputs.kanpou_found }}
-    - ${{ inputs.pdf_infos }}
+    - "--dlpdf"
+    - "${{ inputs.dlpdf }}"
+    - "--date"
+    - "${{ inputs.date }}"
