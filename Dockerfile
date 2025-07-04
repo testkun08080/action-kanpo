@@ -7,4 +7,4 @@ COPY fetch_kanpo.py /fetch_kanpo.py
 COPY pyproject.toml /pyproject.toml
 RUN uv sync
 
-CMD ["uv", "run", "fetch_kanpo.py"]
+ENTRYPOINT ["uv", "run", "fetch_kanpo.py"]
