@@ -27,7 +27,7 @@ jobs:
           echo "官報取得成功 or 失敗: ${{needs.fetch-kanpo.outputs.kanpou_found}}"
           echo "取得PDF数: ${{needs.fetch-kanpo.outputs.pdf_infos}}"
           echo ${{needs.fetch-kanpo.outputs.kanpou_found}}"
-          echo ${{needs.fetch-kanpo.outputs.pdf_infos}}
+          echo ${{needs.fetch-kanpo.outputs.pdf_infos}}"
 
   fetch-dl-kanpo:
     needs: fetch-kanpo
