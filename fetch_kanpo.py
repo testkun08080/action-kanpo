@@ -1,6 +1,7 @@
 """
 官報のページを見に行き、当日のデータがあるかどうかを確認するかどうかをチェックするPythonスクリプトです。
 GitHub Actionとして実行され、結果を出力します。
+時間は日本時間（Asia/Tokyo）で取得されます。
 """
 
 import os
@@ -8,6 +9,8 @@ import re
 import time
 import argparse
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
@@ -30,7 +33,7 @@ class KanpoFetcher:
         self.base_url = "https://www.kanpo.go.jp"
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": "Mozilla/5.0"})
-        self.target_date = target_date or datetime.now()
+        self.target_date = target_date or datetime.now(ZoneInfo("Asia/Tokyo"))  # 日本時間（Asia/Tokyo）で現在時刻
 
     def get_target_date(self):
         """検索対象の日付文字列(YYYY-MM-DD)を取得
@@ -188,7 +191,7 @@ class KanpoFetcher:
         readme_path = folder_path / f"官報_{date_str}.md"
         with open(readme_path, "w", encoding="utf-8") as f:
             f.write(f"# 官報 {date_str}\n\n")
-            f.write(f"取得日時: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"取得日時: {datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%Y-%m-%d %H:%M:%S')}\n")
             f.write("## ダウンロードファイル\n\n")
             for pdf in pdf_list:
                 f.write(f"- [{pdf['name']}]({pdf['filename']})\n")
@@ -280,7 +283,7 @@ if __name__ == "__main__":
                 print(f"入力された日付: {args.date}")
                 exit(1)
         else:
-            target_date = datetime.now()
+            target_date = datetime.now(ZoneInfo("Asia/Tokyo"))
 
         fetcher = KanpoFetcher(target_date=target_date)
 
