@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: 官報スクレイピング（Docker Action）
-        uses: ./
+        uses: testkun08080/action-kanpo@main
         with:
           dlpdf: "true"
           date: "2025-07-03"
