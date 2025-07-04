@@ -15,27 +15,31 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def str2bool(v):
+    """文字列を真偽値に変換するヘルパー関数"""
+    return str(v).lower() in ("true")
+
+
 class KanpoFetcher:
-    def __init__(self, test_mode=True, serch_date=None):
+    def __init__(self, target_date=None):
         """官報のページを取得し、PDFファイルをダウンロードするクラス
         Args:
             test_mode (bool, optional): _description_. Defaults to True.
-            serch_date (datetime, optional): _description_. Defaults to None.
+            target_date (datetime, optional): _description_. Defaults to None.
         """
         self.base_url = "https://www.kanpo.go.jp"
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": "Mozilla/5.0"})
-        self.test_mode = test_mode
-        self.serch_date = serch_date or datetime.now()
+        self.target_date = target_date or datetime.now()
 
-    def get_serch_date(self):
-        """日付文字列(YYYY-MM-DD)を取得
+    def get_target_date(self):
+        """検索対象の日付文字列(YYYY-MM-DD)を取得
 
         Returns:
             str: 日付文字列（YYYY-MM-DD）
         """
 
-        return self.serch_date.strftime("%Y-%m-%d")
+        return self.target_date.strftime("%Y-%m-%d")
 
     def create_date_folder(self, date_str):
         """日付に基づいてフォルダを作成します
@@ -80,8 +84,7 @@ class KanpoFetcher:
 
         print("🔍 官報リンクを検索中...")
 
-        target_date = self.serch_date
-        patterns = [target_date.strftime("%Y%m%d")]
+        patterns = [self.target_date.strftime("%Y%m%d")]
         print(f"📅 検索パターン: {patterns}")
         print(f"🎯 使用するクラスフィルター: {class_filter}")
 
@@ -162,22 +165,14 @@ class KanpoFetcher:
 
         try:
             print(f"📥 ダウンロード開始: {pdf_info['name']}")
-            if self.test_mode:
-                response = self.session.head(pdf_info["url"], timeout=10)
-                response.raise_for_status()
-                print("  ✅ 確認成功")
-                file_path = folder_path / (re.sub(r"[^\w\-_\.]", "_", pdf_info["filename"]) + ".pdf")
-                file_path.write_text(f"テストファイル - {pdf_info['name']}\n")
-                return True
-            else:
-                response = self.session.get(pdf_info["url"], stream=True, timeout=30)
-                response.raise_for_status()
-                file_path = folder_path / re.sub(r"[^\w\-_\.]", "_", pdf_info["filename"])
-                with open(file_path, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
-                print(f"  ✅ 完了: {file_path.name}")
-                return True
+            response = self.session.get(pdf_info["url"], stream=True, timeout=30)
+            response.raise_for_status()
+            file_path = folder_path / re.sub(r"[^\w\-_\.]", "_", pdf_info["filename"])
+            with open(file_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print(f"  ✅ 完了: {file_path.name}")
+            return True
         except Exception as e:
             print(f"  ❌ ダウンロード失敗: {e}")
             return False
@@ -194,7 +189,6 @@ class KanpoFetcher:
         with open(readme_path, "w", encoding="utf-8") as f:
             f.write(f"# 官報 {date_str}\n\n")
             f.write(f"取得日時: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"テストモード: {'有効' if self.test_mode else '無効'}\n\n")
             f.write("## ダウンロードファイル\n\n")
             for pdf in pdf_list:
                 f.write(f"- [{pdf['name']}]({pdf['filename']})\n")
@@ -218,7 +212,7 @@ class KanpoFetcher:
         if not kanpo_links:
             return False, []
 
-        date_str = self.get_serch_date()
+        date_str = self.get_target_date()
         folder_path = self.create_date_folder(date_str)
 
         for link_info in kanpo_links:
@@ -231,14 +225,46 @@ class KanpoFetcher:
 
         if all_pdfs:
             self.create_readme(folder_path, all_pdfs, date_str)
-            return True, all_pdfs
         else:
             return False, []
+
+        return True, all_pdfs
+
+    def test_run(self):
+        """テスト用のランナー関数(ページをフェッチして、pdfのリンクだけを取得する)
+
+        Returns:
+            bool: 指定した日付で、官報を見つけられたかどうか(検索から90日以内ならヒットするはず)
+            list: PDFのリンクリスト
+        """
+        print("🚀 官報リンク取得開始")
+        all_pdfs = []
+        soup = self.fetch_main_page()
+        if not soup:
+            return False, all_pdfs
+
+        kanpo_links = self.find_kanpo_link(soup, "pdfDlb")
+        if not kanpo_links:
+            print("⚠️ 発行された官報のURL(クラス名:pdfDlb)が見つかりませんでした")
+            return False, all_pdfs
+
+        for link_info in kanpo_links:
+            print(f"\n📖 処理中: {link_info['text']}")
+            pdf_links = self.fetch_kanpo_page(link_info["url"])
+            for pdf_info in pdf_links:
+                all_pdfs.append(pdf_info)
+                time.sleep(1)
+
+        if not all_pdfs:
+            print("⚠️ PDFリンクが見つかりませんでした")
+            return False, all_pdfs
+
+        return True, all_pdfs
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="官報PDF自動取得ツール")
-    parser.add_argument("--test", action="store_true", help="テストモード")
+    parser.add_argument("--dlpdf", type=str2bool, nargs="?", const=True, default=False, help="PDFをダウンロードするか")
     parser.add_argument("--date", type=str, help="対象日付 (例: 2025-07-03)")
     args = parser.parse_args()
 
@@ -250,15 +276,23 @@ if __name__ == "__main__":
             try:
                 target_date = datetime.strptime(args.date, "%Y-%m-%d")
             except ValueError:
-                print("❌ 日付の形式が不正です。例: 2025-07-03")
+                print("❌ 日付の形式が不正です。例: YYYY-MM-DD")
+                print(f"入力された日付: {args.date}")
                 exit(1)
         else:
             target_date = datetime.now()
 
-        fetcher = KanpoFetcher(test_mode=args.test, serch_date=target_date)
-        kanpou_found, pdf_infos = fetcher.run()
+        fetcher = KanpoFetcher(target_date=target_date)
+
+        if args.dlpdf:
+            print("🚀 本番モード: 官報PDFをダウンロードします")
+            kanpou_found, pdf_infos = fetcher.run()
+        else:
+            print("🔍 確認モード: 官報リンクのみを取得します")
+            kanpou_found, pdf_infos = fetcher.test_run()
 
         if kanpou_found:
+            print(f"📄 kanpou_found: {kanpou_found}")
             print("🎉 官報取得成功")
         else:
             print("⚠️ 官報が見つかりませんでした")
