@@ -5,6 +5,6 @@ COPY fetch_kanpo.py /fetch_kanpo.py
 
 # 依存ライブラリ
 COPY pyproject.toml /pyproject.toml
-RUN uv pip install -r /pyproject.toml
+RUN uv pip sync pyproject.toml
 
 CMD ["uv", "run", "fetch_kanpo.py"]
