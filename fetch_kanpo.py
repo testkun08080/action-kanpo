@@ -313,8 +313,8 @@ if __name__ == "__main__":
     # Make outputs
     if "GITHUB_OUTPUT" in os.environ:
         print("GITHUB_OUTPUT 環境変数が設定されています。出力を行います。")
-        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-            print("{0}={1}".format("kanpou_found", kanpou_found), file=f)
-            print("{0}={1}".format("pdf_infos", pdf_infos), file=f)
+        with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+            print(f"kanpou_found={kanpou_found}", file=fh)
+            print(f"pdf_infos={pdf_infos}", file=fh)
     else:
         print("GITHUB_OUTPUT 環境変数が設定されていません。出力は行われません。")
