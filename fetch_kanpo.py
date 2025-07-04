@@ -312,9 +312,22 @@ if __name__ == "__main__":
 
     # Make outputs
     if "GITHUB_OUTPUT" in os.environ:
+        output_path = os.environ.get("GITHUB_OUTPUT")
         print("GITHUB_OUTPUT 環境変数が設定されています。出力を行います。")
-        with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+        with open(output_path, "a") as fh:
             print(f"kanpou_found={kanpou_found}", file=fh)
             print(f"pdf_infos={pdf_infos}", file=fh)
+
+        if output_path:
+            print(f"GITHUB_OUTPUT のパス: {output_path}")
+            try:
+                with open(output_path, "r") as f:
+                    content = f.read()
+                print("GITHUB_OUTPUT ファイルの中身:")
+                print(content)
+            except Exception as e:
+                print(f"ファイル読み込みエラー: {e}")
+        else:
+            print("GITHUB_OUTPUT 環境変数が設定されていません。")
     else:
         print("GITHUB_OUTPUT 環境変数が設定されていません。出力は行われません。")
