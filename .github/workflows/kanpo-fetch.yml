@@ -42,11 +42,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: ダウンロード後の待機
-        run: |
-          echo "⌛ 5秒待機中..."
-          sleep 5
-
       - name: 官報チェック(DLあり)
         id: fetch-dl-kanpo-step
         uses: testkun08080/action-kanpo@main
@@ -66,6 +61,11 @@ jobs:
     if: success()
     steps:
       - uses: actions/checkout@v4
+
+      - name: ダウンロード後の待機
+        run: |
+          echo "⌛ 5秒待機中..."
+          sleep 5
 
       - name: kanpo ディレクトリ構造（ツリー形式）表示
         run: |
