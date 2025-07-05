@@ -56,8 +56,8 @@ jobs:
     steps:
       - name: 結果を表示
         run: |
-          echo "官報取得成功 or 失敗: ${{needs.fetch-dl-kanpo-step.outputs.kanpou_found}}"
-          echo "取得PDF数: ${{needs.fetch-dl-kanpo-step.outputs.pdf_infos}}"
+          echo "官報取得成功 or 失敗: ${{needs.fetch-dl-kanpo.outputs.kanpou_found}}"
+          echo "取得PDF数: ${{needs.fetch-dl-kanpo.outputs.pdf_infos}}"
 
   # tweet:
   #   name: ツイート送信
