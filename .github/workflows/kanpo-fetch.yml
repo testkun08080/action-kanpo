@@ -10,13 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: 官報チェック(DL無し)
-        id: fetch-kanpo
+        id: fetch-kanpo-step
         uses: testkun08080/action-kanpo@main
         with:
           dlpdf: "false" # PDFをダウンロードしない
           date: "2025-07-03"
+      - name: 官報チェック結果を出力
+        id: output-kanpo
+        run: |
+          echo "kanpou_found=${{ steps.fetch-kanpo-step.outputs.kanpou_found }}" >> $GITHUB_ENV
+          echo "pdf_infos=${{ steps.fetch-kanpo-step.outputs.pdf_infos }}" >> $GITHUB_ENV
+        # 出力を環境変数に設定
+        # これにより、後続のジョブで参照可能になる
+        # 例: echo "kanpou_found=${{ steps.fetch-kanpo-step.outputs .kanpou_found }}" >> $GITHUB_ENV
+        #      echo "pdf_infos=${{ steps.fetch-kanpo-step.outputs.pdf_infos }}" >> $GITHUB_ENV
+
+    # outputs:
+    #   kanpou_found: ${{ steps.fetch-kanpo-step.outputs.kanpou_found }}
+    #   pdf_infos: ${{ steps.fetch-kanpo-step.outputs.pdf_infos }}
 
   show-results:
     needs: fetch-kanpo
@@ -26,8 +38,6 @@ jobs:
         run: |
           echo "官報取得成功 or 失敗: ${{needs.fetch-kanpo.outputs.kanpou_found}}"
           echo "取得PDF数: ${{needs.fetch-kanpo.outputs.pdf_infos}}"
-          echo ${{needs.fetch-kanpo.outputs.kanpou_found}}"
-          echo ${{needs.fetch-kanpo.outputs.pdf_infos}}"
 
   fetch-dl-kanpo:
     needs: fetch-kanpo
