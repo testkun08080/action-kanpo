@@ -17,7 +17,7 @@ jobs:
           dlpdf: "false" # PDFをダウンロードしない
           date: "2025-07-03"
       - name: 官報チェック結果を出力
-        id: output-kanpo
+        id: output-fettch-kanpo-step
         run: |
           echo "kanpou_found=${{ steps.fetch-kanpo-step.outputs.kanpou_found }}"
           echo "pdf_infos=${{ steps.fetch-kanpo-step.outputs.pdf_infos }}"
@@ -43,11 +43,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: 官報チェック(DLあり)
-        id: fetch-kanpo
+        id: fetch-dl-kanpo-step
         uses: testkun08080/action-kanpo@main
         with:
           dlpdf: "true" # PDFをダウンロードする
           date: "2025-07-03"
+      - name: 官報チェック結果を出力
+        id: output-fetch-dl-kanpo-step
+        run: |
+          echo "kanpou_found=${{ steps.fetch-dl-kanpo-step.outputs.kanpou_found }}"
+          echo "pdf_infos=${{ steps.fetch-dl-kanpo-step.outputs.pdf_infos }}"
 
   commit:
     name: 変更をコミット
@@ -56,6 +61,15 @@ jobs:
     if: success()
     steps:
       - uses: actions/checkout@v4
+
+      - name: kanpo ディレクトリ構造（ツリー形式）表示
+        run: |
+          apt-get update && apt-get install -y tree
+          if [ -d kanpo ]; then
+            tree -a kanpo
+          else
+            echo "⚠️ kanpo ディレクトリが見つかりません"
+          fi
 
       - name: Git 設定とコミット
         run: |
