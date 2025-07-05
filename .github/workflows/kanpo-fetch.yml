@@ -15,7 +15,7 @@ jobs:
         uses: testkun08080/action-kanpo@main
         with:
           dlpdf: "false" # PDFをダウンロードしない
-          date: "2025-07-03" # 日付を指定する場合はここに入力 ない場合は当日の日付を使用
+          # date: "2025-07-03" # 日付を指定する場合はここに入力 ない場合は当日の日付を使用
     outputs:
       kanpou_found: ${{ steps.fetch-kanpo-step.outputs.kanpou_found }}
       pdf_infos: ${{ steps.fetch-kanpo-step.outputs.pdf_infos }}
@@ -41,7 +41,7 @@ jobs:
         uses: testkun08080/action-kanpo@main
         with:
           dlpdf: "true" # PDFをダウンロードする
-          date: "2025-07-03" # 日付を指定する場合はここに入力 ない場合は当日の日付を使用
+          # date: "2025-07-03" # 日付を指定する場合はここに入力 ない場合は当日の日付を使用
       - name: 自動コミット
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
