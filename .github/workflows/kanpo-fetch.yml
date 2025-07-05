@@ -19,16 +19,12 @@ jobs:
       - name: 官報チェック結果を出力
         id: output-kanpo
         run: |
-          echo "kanpou_found=${{ steps.fetch-kanpo-step.outputs.kanpou_found }}" >> $GITHUB_ENV
-          echo "pdf_infos=${{ steps.fetch-kanpo-step.outputs.pdf_infos }}" >> $GITHUB_ENV
-        # 出力を環境変数に設定
-        # これにより、後続のジョブで参照可能になる
-        # 例: echo "kanpou_found=${{ steps.fetch-kanpo-step.outputs .kanpou_found }}" >> $GITHUB_ENV
-        #      echo "pdf_infos=${{ steps.fetch-kanpo-step.outputs.pdf_infos }}" >> $GITHUB_ENV
+          echo "kanpou_found=${{ steps.fetch-kanpo-step.outputs.kanpou_found }}"
+          echo "pdf_infos=${{ steps.fetch-kanpo-step.outputs.pdf_infos }}"
 
-    # outputs:
-    #   kanpou_found: ${{ steps.fetch-kanpo-step.outputs.kanpou_found }}
-    #   pdf_infos: ${{ steps.fetch-kanpo-step.outputs.pdf_infos }}
+    outputs:
+      kanpou_found: ${{ steps.fetch-kanpo-step.outputs.kanpou_found }}
+      pdf_infos: ${{ steps.fetch-kanpo-step.outputs.pdf_infos }}
 
   show-results:
     needs: fetch-kanpo
