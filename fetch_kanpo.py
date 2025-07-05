@@ -174,7 +174,7 @@ class KanpoFetcher:
             with open(file_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
-            print(f"  ✅ 完了: {file_path.name}")
+            print(f"  ✅ 完了: {file_path}")
             return True
         except Exception as e:
             print(f"  ❌ ダウンロード失敗: {e}")
