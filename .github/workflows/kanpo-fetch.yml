@@ -54,38 +54,44 @@ jobs:
           echo "kanpou_found=${{ steps.fetch-dl-kanpo-step.outputs.kanpou_found }}"
           echo "pdf_infos=${{ steps.fetch-dl-kanpo-step.outputs.pdf_infos }}"
 
-  commit:
-    name: 変更をコミット
-    runs-on: ubuntu-latest
-    needs: fetch-dl-kanpo
-    if: success()
-    steps:
-      - uses: actions/checkout@v4
+      - name: 自動コミット
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: 官報のダウンロード結果の自動コミット
 
-      - name: ダウンロード後の待機
-        run: |
-          echo "⌛ 5秒待機中..."
-          sleep 5
+  # commit:
+  #   name: 変更をコミット
+  #   runs-on: ubuntu-latest
+  #   needs: fetch-dl-kanpo
+  #   if: success()
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: kanpo ディレクトリ構造（ツリー形式）表示
-        run: |
-          apt-get update && apt-get install -y tree
-          if [ -d kanpo ]; then
-            tree -a kanpo
-          else
-            echo "⚠️ kanpo ディレクトリが見つかりません"
-          fi
+  #     - name: ダウンロード後の待機
+  #       run: |
+  #         echo "⌛ 5秒待機中..."
+  #         sleep 5
 
-      - name: Git 設定とコミット
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          if git diff --staged --quiet; then
-            echo "📭 変更なし（新しい官報はありません）"
-          else
-            git commit -m "官報更新: $(date '+%Y-%m-%d')"
-            git push
+  #     - name: kanpoディレクトリの構造確認
+  #       run: |
+  #         sudo apt-get update && sudo apt-get install -y tree
+  #         if [ -d kanpo ]; then
+  #           tree -a kanpo
+  #         else
+  #           echo "⚠️ kanpo ディレクトリが見つかりません"
+  #         fi
+
+  #     - name: 変更をコミット＆プッシュ
+  #       run: |
+  #         git config --global user.email "action@github.com"
+  #         git config --global user.name "GitHub Action"
+  #         git add .
+  #         if git diff --staged --quiet; then
+  #           echo "✅ 変更なし"
+  #         else
+  #           git commit -m "官報更新: $(date '+%Y-%m-%d')"
+  #           git push
+  #         fi
 
   # tweet:
   #   name: ツイート送信
